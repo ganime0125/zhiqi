@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>智棋對決 — 封測下載</title>
+  <meta name="description" content="直式手機西洋棋 · 經典規則，或視野外一片黑的迷霧戰 · 吃掉對方的王就贏 · Android 封測 APK">
+  <link rel="icon" href="assets/icon-256.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Noto+Sans+TC:wght@400;500;600&family=Noto+Serif+TC:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-top: #0e1424;
+      --bg: #05070e;
+      --surface: #161d30;
+      --border: #2a3550;
+      --accent: #3b82f6;
+      --accent-deep: #1d4ed8;
+      --gold: #f0b429;
+      --text: #f3f6fb;
+      --muted: #94a3be;
+      --low: #5d6a85;
+      --magenta: #c084fc;
+      --ice: #7dd3fc;
+      --pad: clamp(20px, 4vw, 56px);
+      --max: 1180px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background: var(--bg);
+      font-family: "Noto Sans TC", sans-serif;
+      line-height: 1.55;
+      text-wrap: pretty;
+      overflow-x: hidden;
+    }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; }
+    .wrap { width: min(var(--max), calc(100% - var(--pad) * 2)); margin-inline: auto; }
+
+    nav {
+      position: sticky; top: 0; z-index: 30;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; padding: 14px var(--pad);
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+      backdrop-filter: blur(12px);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .brand img {
+      width: 42px; height: 42px; border-radius: 10px;
+      box-shadow: 0 0 0 1px var(--border);
+      transition: transform .22s ease, box-shadow .22s ease;
+    }
+    .brand em {
+      font-family: "Noto Serif TC", serif;
+      font-style: normal; font-weight: 600; letter-spacing: .12em;
+      font-size: 16px; color: var(--gold);
+      transition: letter-spacing .22s ease, color .22s ease;
+    }
+    .nav-links { display: flex; gap: 22px; align-items: center; color: var(--muted); font-size: 14px; }
+    .nav-links a { text-decoration: none; position: relative; transition: color .18s ease, transform .18s ease; }
+    .nav-links a:not(.btn)::after {
+      content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 1px;
+      background: var(--gold); transform: scaleX(0); transform-origin: left;
+      transition: transform .2s ease;
+    }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-height: 44px; padding: 0 18px; border-radius: 999px;
+      text-decoration: none; font-weight: 600; font-size: 14px;
+      border: 1px solid transparent; cursor: pointer;
+      transition: transform .16s ease, box-shadow .16s ease, filter .16s ease, border-color .16s ease, background .16s ease;
+    }
+    .btn-gold {
+      background: var(--gold); color: #1a1404;
+      box-shadow: 0 0 0 0 rgba(240,180,41,.45);
+      animation: pulseGold 2.8s ease-in-out infinite;
+    }
+    .btn-ghost { border-color: var(--border); color: var(--text); background: transparent; }
+
+    .hero {
+      position: relative;
+      min-height: min(92vh, 900px);
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      align-items: center;
+      isolation: isolate;
+      overflow: hidden;
+    }
+    .hero-art {
+      position: absolute; inset: 0; z-index: -2;
+      background:
+        radial-gradient(50% 60% at 18% 40%, rgba(140,60,180,.22), transparent 62%),
+        radial-gradient(45% 50% at 82% 30%, rgba(45,100,200,.20), transparent 60%),
+        linear-gradient(180deg, var(--bg-top), var(--bg));
+      animation: ken 28s ease-in-out infinite alternate;
+    }
+    .hero-mist {
+      position: absolute; inset: 0; z-index: -1; pointer-events: none;
+      background:
+        radial-gradient(40% 50% at 20% 80%, rgba(80,40,120,.18), transparent 70%),
+        radial-gradient(50% 40% at 80% 20%, rgba(40,80,180,.16), transparent 70%);
+      animation: fogDrift 16s ease-in-out infinite alternate;
+    }
+    .hero-copy { padding: clamp(48px, 8vh, 96px) var(--pad) 64px; max-width: 640px; }
+    .kicker { display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 22px; }
+    .pill {
+      font-size: 12px; letter-spacing: .08em;
+      color: var(--gold); border: 1px solid color-mix(in srgb, var(--gold) 45%, var(--border));
+      padding: 4px 10px; border-radius: 999px;
+      transition: transform .16s ease, border-color .16s ease;
+    }
+    .pill.ice { color: var(--ice); border-color: color-mix(in srgb, var(--ice) 40%, var(--border)); }
+    h1 {
+      font-family: "Noto Serif TC", serif;
+      font-size: clamp(34px, 5vw, 64px);
+      line-height: 1.12; font-weight: 700; margin: 0 0 18px;
+    }
+    .lede { color: var(--muted); font-size: 18px; max-width: 34em; margin: 0 0 28px; }
+    .cta-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .fine { color: var(--low); font-size: 13px; margin: 14px 0 0; }
+
+    .phones {
+      display: flex; align-items: flex-end; justify-content: center;
+      gap: 18px; padding: 40px var(--pad) 24px 0;
+      perspective: 900px;
+    }
+    .device {
+      width: min(300px, 46vw);
+      border-radius: 28px;
+      overflow: hidden;
+      background: #0a0e18;
+      border: 1px solid var(--border);
+      box-shadow: 0 28px 50px rgba(0,0,0,.5);
+      animation: floatY 5.5s ease-in-out infinite;
+      cursor: pointer;
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    }
+    .device:nth-child(2) { width: min(280px, 42vw); animation-delay: -1.6s; }
+    .device img { width: 100%; aspect-ratio: 9/16; object-fit: cover; object-position: center top; }
+
+    section { padding: 72px 0; }
+    .sec-head {
+      display: grid; grid-template-columns: 160px 1fr;
+      gap: 24px; align-items: baseline; margin-bottom: 36px;
+    }
+    .sec-head small {
+      font-family: "Cormorant Garamond", serif;
+      letter-spacing: .22em; color: var(--gold); font-size: 13px;
+    }
+    .sec-head h2 {
+      font-family: "Noto Serif TC", serif;
+      font-size: clamp(26px, 3vw, 36px); margin: 0; font-weight: 600;
+    }
+
+    .modes {
+      display: grid; grid-template-columns: 1fr 1fr; min-height: 380px;
+      border: 1px solid var(--border); overflow: visible;
+    }
+    .mode { padding: 40px 36px; display: flex; flex-direction: column; justify-content: flex-end; min-height: 360px; position: relative; overflow: hidden; cursor: pointer; transition: transform .22s ease, filter .22s ease, box-shadow .22s ease; }
+    .mode::after {
+      content: ""; position: absolute; inset: auto -20% -40% auto; width: 280px; height: 280px;
+      border-radius: 50%; filter: blur(40px); opacity: .5;
+      animation: orb 8s ease-in-out infinite alternate;
+    }
+    .mode.classic {
+      background: linear-gradient(180deg, transparent 10%, rgba(5,7,14,.72)), radial-gradient(120% 80% at 80% 0%, rgba(59,130,246,.28), transparent 55%), var(--bg-top);
+    }
+    .mode.classic::after { background: #3b82f6; }
+    .mode.fog {
+      background: linear-gradient(180deg, transparent 10%, rgba(5,7,14,.8)), radial-gradient(120% 80% at 20% 0%, rgba(192,132,252,.26), transparent 55%), #120818;
+      border-left: 1px solid var(--border);
+    }
+    .mode.fog::after { background: #a855f7; animation-delay: -3s; }
+    .mode h3 { font-family: "Noto Serif TC", serif; font-size: 32px; margin: 0 0 10px; position: relative; z-index: 1; }
+    .mode p { color: var(--muted); margin: 0; max-width: 16em; position: relative; z-index: 1; }
+    .mode .tag { font-size: 12px; letter-spacing: .16em; margin-bottom: 18px; position: relative; z-index: 1; color: var(--ice); }
+    .mode.fog .tag { color: var(--magenta); }
+    .mode.classic p, .mode.classic h3, .mode.classic .tag { max-width: 58%; }
+    .mode.fog { align-items: flex-end; }
+    .mode.fog p, .mode.fog h3, .mode.fog .tag { text-align: right; max-width: 62%; }
+    .mode-piece {
+      position: absolute; z-index: 0; pointer-events: none;
+      height: 82%; width: auto; max-width: 52%;
+      object-fit: contain; bottom: -6%;
+      filter: drop-shadow(0 16px 22px rgba(0,0,0,.5));
+      transition: transform .25s ease;
+    }
+    .mode.classic .mode-piece { right: 2%; }
+    .mode.fog .mode-piece { left: 0; }
+
+    .path { display: block; }
+    .path ol { list-style: none; margin: 0; padding: 0; max-width: 640px; }
+    .path li { display: grid; grid-template-columns: 48px 1fr; gap: 16px; padding-bottom: 28px; transition: transform .18s ease; }
+    .path li:last-child { padding-bottom: 0; }
+    .n { font-family: "Cormorant Garamond", serif; color: var(--gold); font-size: 22px; }
+    .path h3 { margin: 0 0 4px; font-size: 18px; font-family: "Noto Serif TC", serif; }
+    .path p { margin: 0; color: var(--muted); font-size: 14px; }
+    .path-art {
+      border: 1px solid var(--border); overflow: hidden; min-height: 280px; background: #070b14;
+    }
+    .path-art img { width: 100%; height: 100%; object-fit: contain; min-height: 280px; background: #070b14; }
+
+    .ranks { display: flex; flex-wrap: wrap; gap: 8px; }
+    .rank {
+      flex: 1 1 70px; text-align: center; padding: 12px 8px 10px;
+      font-family: "Cormorant Garamond", serif; border: 1px solid var(--border);
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+    }
+    .rank img { display: block; height: 52px; width: auto; margin: 0 auto 6px; }
+    .rank small { display: block; font-family: "Noto Sans TC", sans-serif; font-size: 11px; margin-top: 0; letter-spacing: 0; }
+    .rank.f { color: #6b7280; border-color: #1c2230; background: #0a0d14; font-size: 17px; font-weight: 500; }
+    .rank.f small { color: #4b5563; }
+    .rank.e { color: #4ade80; border-color: #166534; background: #07140d; font-size: 19px; }
+    .rank.e small { color: #22c55e; }
+    .rank.d { color: #2dd4bf; border-color: #0f766e; font-size: 21px; background: #06201c; }
+    .rank.d small { color: #14b8a6; }
+    .rank.c { color: #60a5fa; border-color: #1d4ed8; font-size: 22px; background: #0a1224; }
+    .rank.c small { color: #3b82f6; }
+    .rank.b { color: #c084fc; border-color: #7e22ce; font-size: 22px; background: #140a22; }
+    .rank.b small { color: #a855f7; }
+    .rank.a { color: #facc15; border-color: #a16207; font-size: 23px; font-weight: 700; background: #161307; }
+    .rank.a small { color: #eab308; }
+    .rank.ap {
+      color: #fecaca; border-color: #ef4444; font-size: 24px; font-weight: 700;
+      background: linear-gradient(180deg, #3a1010, #140808);
+      box-shadow: inset 0 0 18px rgba(239,68,68,.22);
+    }
+    .rank.ap small { color: #f87171; }
+    .rank.s {
+      font-size: 28px; font-weight: 700; font-style: italic; letter-spacing: .08em;
+      color: #fff;
+      border-color: transparent;
+      background: linear-gradient(120deg, #ff4d6d, #ff9f1c, #ffd166, #4ade80, #38bdf8, #a78bfa, #ff4d6d);
+      background-size: 240% 240%;
+      animation: rainbow 3.2s linear infinite;
+      box-shadow: 0 0 28px rgba(167,139,250,.35);
+    }
+    .rank.s small { color: #fff; }
+
+    .download {
+      border: 1px solid var(--border);
+      display: grid; grid-template-columns: 1.2fr .8fr;
+      background: linear-gradient(120deg, rgba(240,180,41,.08), transparent 42%), var(--surface);
+    }
+    .download-copy { padding: 40px 36px; }
+    .download-copy h2 { font-family: "Noto Serif TC", serif; font-size: 32px; margin: 0 0 10px; }
+    .meta { color: var(--muted); font-size: 14px; margin: 0 0 22px; }
+    .download-side { border-left: 1px solid var(--border); padding: 36px; color: var(--muted); font-size: 14px; }
+    .download-side dt { color: var(--text); font-weight: 600; margin-top: 12px; }
+    .download-side dt:first-child { margin-top: 0; }
+    .download-side dd { margin: 4px 0 0; }
+    .toast { display: none; margin-top: 14px; color: var(--gold); font-size: 14px; }
+    .toast.show { display: block; }
+
+    .rules { border: 1px solid var(--border); background: var(--surface); }
+    .rule-tabs {
+      display: flex; flex-wrap: wrap; gap: 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .rule-tab {
+      appearance: none; background: transparent; color: var(--muted);
+      border: 0; border-right: 1px solid var(--border);
+      min-height: 44px; padding: 10px 14px; cursor: pointer;
+      font: 600 13px "Noto Sans TC", sans-serif;
+      transition: color .16s ease, background .16s ease, transform .16s ease;
+    }
+    .rule-tab[aria-selected="true"] { color: var(--gold); background: rgba(240,180,41,.08); }
+    .rule-panel { display: none; padding: 28px 28px 32px; }
+    .rule-panel.active { display: block; }
+    .rule-panel h3 { font-family: "Noto Serif TC", serif; font-size: 22px; margin: 0 0 10px; }
+    .rule-panel p, .rule-panel li { color: var(--muted); font-size: 15px; }
+    .rule-panel ul { margin: 0; padding: 0 0 0 1.1em; }
+    .rule-panel li { margin: 0 0 8px; }
+    .piece-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+      background: var(--border); border: 1px solid var(--border); margin: 18px 0 8px;
+    }
+    .piece-card { background: var(--bg); padding: 16px 14px 18px; min-height: 108px; }
+    .piece-card b { display: block; font-family: "Noto Serif TC", serif; font-size: 18px; margin-bottom: 6px; color: var(--text); }
+    .piece-card span { color: var(--muted); font-size: 13px; }
+    .rule-note { margin-top: 18px; font-size: 13px; color: var(--low); }
+    .rule-note a { color: var(--gold); }
+
+    footer {
+      padding: 28px var(--pad) 48px; color: var(--low); font-size: 13px;
+      display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+      border-top: 1px solid var(--border);
+    }
+
+    @keyframes ken { from { transform: scale(1); } to { transform: scale(1.06); } }
+    @keyframes fogDrift { from { transform: translateX(-2%); } to { transform: translateX(3%); } }
+    @keyframes floatY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+    @keyframes pulseGold { 0%,100% { box-shadow: 0 0 0 0 rgba(240,180,41,.0); } 50% { box-shadow: 0 0 22px 2px rgba(240,180,41,.28); } }
+    @keyframes orb { from { transform: translate(0,0); } to { transform: translate(-30px,-20px); } }
+    @keyframes rainbow { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+
+    @media (hover: hover) and (pointer: fine) {
+      .brand:hover img { transform: rotate(-8deg) scale(1.08); box-shadow: 0 0 0 1px var(--gold), 0 8px 18px rgba(240,180,41,.25); }
+      .brand:hover em { letter-spacing: .18em; }
+      .nav-links a:not(.btn):hover { color: var(--text); transform: translateY(-2px); }
+      .nav-links a:not(.btn):hover::after { transform: scaleX(1); }
+      .btn-gold:hover {
+        animation: none;
+        transform: translateY(-4px) scale(1.05);
+        filter: brightness(1.08);
+        box-shadow: 0 12px 28px rgba(240,180,41,.38);
+      }
+      .btn-ghost:hover {
+        border-color: var(--gold);
+        color: var(--gold);
+        transform: translateY(-3px);
+        background: rgba(240,180,41,.06);
+      }
+      .device:hover {
+        animation-play-state: paused;
+        transform: translateY(-16px) rotate(-2deg) scale(1.04);
+        border-color: var(--gold);
+        box-shadow: 0 36px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(240,180,41,.35);
+      }
+      .mode:hover { transform: translateY(-6px); filter: brightness(1.12); z-index: 1; }
+      .mode:hover::after { opacity: .85; }
+      .mode:hover .mode-piece { transform: translateY(-12px) scale(1.06); }
+      .mode.fog:hover {
+        filter: brightness(1.28) saturate(1.15);
+        box-shadow: inset 0 0 0 2px var(--magenta), 0 18px 36px rgba(168,85,247,.4);
+      }
+      .mode.classic:hover {
+        box-shadow: inset 0 0 0 2px var(--ice), 0 18px 36px rgba(59,130,246,.28);
+      }
+      .rank:hover { transform: translateY(-8px) scale(1.08); filter: brightness(1.15); box-shadow: 0 12px 24px rgba(0,0,0,.35); }
+      .path li:hover { transform: translateX(8px); }
+      .pill:hover { transform: translateY(-1px); }
+      .rule-tab:hover { color: var(--text); background: rgba(255,255,255,.04); }
+      .piece-card:hover { filter: brightness(1.12); }
+    }
+    .btn:active {
+      animation: none !important;
+      transform: translateY(3px) scale(0.96);
+      filter: brightness(0.88);
+      box-shadow: 0 1px 4px rgba(0,0,0,.4);
+    }
+    .btn-gold:active { box-shadow: inset 0 3px 8px rgba(80,50,0,.35); }
+    .btn-ghost:active { background: rgba(255,255,255,.06); }
+    .brand:active img { transform: scale(0.92) rotate(0deg); }
+    .device:active { transform: translateY(4px) scale(0.97); animation-play-state: paused; }
+    .mode:active { transform: translateY(3px) scale(0.99); filter: brightness(0.92); }
+    .rank:active { transform: translateY(2px) scale(0.94); }
+    .rule-tab:active { transform: translateY(2px) scale(0.97); }
+    .btn:focus-visible, .nav-links a:focus-visible, .brand:focus-visible {
+      outline: 2px solid var(--gold); outline-offset: 3px;
+    }
+
+    @media (max-width: 880px) {
+      .hero, .modes, .download, .sec-head { grid-template-columns: 1fr; }
+      .nav-links a:not(.btn) { display: none; }
+      .phones { padding: 0 var(--pad) 36px; }
+      .device { width: 42%; }
+      .piece-grid { grid-template-columns: 1fr 1fr; }
+      .mode.fog { border-left: 0; border-top: 1px solid var(--border); }
+      .download-side { border-left: 0; border-top: 1px solid var(--border); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .hero-art, .hero-mist, .device, .btn-gold, .rank.s, .mode::after { animation: none; }
+      .btn, .rank, .mode, .device, .brand img, .nav-links a { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a class="brand" href="#top">
+      <img src="assets/icon-256.png" alt="智棋對決">
+      <em>智棋對決</em>
+    </a>
+    <div class="nav-links">
+      <a href="#modes">模式</a>
+      <a href="#rules">規則</a>
+      <a href="#path">流程</a>
+      <a href="#ladder">階級</a>
+      <a class="btn btn-gold" href="#download">下載封測</a>
+    </div>
+  </nav>
+
+  <header class="hero" id="top">
+    <div class="hero-art" role="img" aria-label="智棋對決圖示與棋盤"></div>
+    <div class="hero-mist"></div>
+    <div class="hero-copy">
+      <div class="kicker">
+        <span class="pill">ANDROID 封測</span>
+        <span class="pill ice">直式 · 1.0</span>
+      </div>
+      <h1>看不見的格子，<br>藏著整盤棋</h1>
+      <p class="lede">西洋棋規則還在 · 迷霧模式把視野外塗黑——你只能看見走得到、吃得到的格子 · 沒有將軍 · 吃掉對方的王，這一局就結束</p>
+      <div class="cta-row">
+        <a class="btn btn-gold" href="#download">下載 Android APK</a>
+        <a class="btn btn-ghost" href="#modes">兩種玩法</a>
+      </div>
+      <p class="fine">需註冊帳號（Email 六碼驗證） · 不走商店，採封測側載</p>
+    </div>
+    <div class="phones">
+      <div class="device"><img src="assets/shot-mode.png" alt="模式選擇畫面"></div>
+    </div>
+  </header>
+
+  <section id="modes">
+    <div class="wrap">
+      <div class="sec-head">
+        <small>PLAY</small>
+        <h2>兩種盤面，同一套棋</h2>
+      </div>
+      <div class="modes">
+        <article class="mode classic">
+          <img class="mode-piece" src="assets/piece-classic.png" alt="">
+          <div class="tag">CLASSIC</div>
+          <h3>經典模式</h3>
+          <p>標準西洋棋規則</p>
+        </article>
+        <article class="mode fog">
+          <img class="mode-piece" src="assets/piece-fog.png" alt="">
+          <div class="tag">FOG</div>
+          <h3>迷霧模式</h3>
+          <p>視野外一片黑 · 吃掉對方的王獲勝 · 沒有將軍、沒有將死</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="rules">
+    <div class="wrap">
+      <div class="sec-head">
+        <small>RULES</small>
+        <h2>棋怎麼下</h2>
+      </div>
+      <div class="rules" data-rules>
+        <div class="rule-tabs" role="tablist">
+          <button class="rule-tab" type="button" role="tab" aria-selected="true" data-tab="p1">走法</button>
+          <button class="rule-tab" type="button" role="tab" aria-selected="false" data-tab="p2">特殊</button>
+          <button class="rule-tab" type="button" role="tab" aria-selected="false" data-tab="p3">勝負</button>
+          <button class="rule-tab" type="button" role="tab" aria-selected="false" data-tab="p4">和棋</button>
+          <button class="rule-tab" type="button" role="tab" aria-selected="false" data-tab="p5">記譜</button>
+          <button class="rule-tab" type="button" role="tab" aria-selected="false" data-tab="p6">子力</button>
+          <button class="rule-tab" type="button" role="tab" aria-selected="false" data-tab="p7">將殺</button>
+          <button class="rule-tab" type="button" role="tab" aria-selected="false" data-tab="p8">戰術</button>
+        </div>
+
+        <div class="rule-panel active" id="p1">
+          <h3>六種子的基本走法</h3>
+          <p>經典模式用標準西洋棋規則 · 白方先行 · 棋種名稱對齊遊戲裡的叫法</p>
+          <div class="piece-grid">
+            <div class="piece-card"><b>車</b><span>直線不限格 · 不能越過別的棋</span></div>
+            <div class="piece-card"><b>象</b><span>斜線不限格 · 不能越過別的棋 · 永遠停在同一色格</span></div>
+            <div class="piece-card"><b>馬</b><span>日字跳 · 唯一可以越過別的棋的子</span></div>
+            <div class="piece-card"><b>后</b><span>車加象 · 直斜都能走 · 盤上射程最遠</span></div>
+            <div class="piece-card"><b>王</b><span>周圍一格 · 最重要的一顆 · 必須護住</span></div>
+            <div class="piece-card"><b>兵</b><span>只能前進不能退 · 初動可走兩格 · 斜前吃 · 到底線可升變成王以外的子</span></div>
+          </div>
+        </div>
+
+        <div class="rule-panel" id="p2">
+          <h3>兩種特殊走法</h3>
+          <ul>
+            <li><b style="color:var(--text)">王車易位</b>　王與那一側的車都還沒動過 · 中間路不能被攻擊 · 王當下沒有被將軍 · 短易位往王翼、長易位往后翼</li>
+            <li><b style="color:var(--text)">吃過路兵</b>　對方兵從起跑線一次走兩格、剛好跟你的兵並排時 · 你必須立刻斜進它「穿過」的那格吃掉 · 晚一步就沒了 · 這是唯一吃完不站在被吃那格的走法</li>
+          </ul>
+        </div>
+
+        <div class="rule-panel" id="p3">
+          <h3>將軍、應將、將死</h3>
+          <p>正式規則裡王不會被吃掉 · 被瞄準時叫將軍 · 必須應將</p>
+          <ul>
+            <li>把攻擊王的子吃掉</li>
+            <li>把王走到安全格</li>
+            <li>用別的子擋住射線（馬的攻擊擋不住）</li>
+          </ul>
+          <p>王無處可逃、也擋不了、吃不掉攻擊者 · 就是將死 · 對方獲勝 · 比賽中沒應將會被判犯規重走</p>
+        </div>
+
+        <div class="rule-panel" id="p4">
+          <h3>和棋的幾種方式</h3>
+          <ul>
+            <li><b style="color:var(--text)">逼和</b>　王沒被將軍 · 但己方沒有任何合法步</li>
+            <li><b style="color:var(--text)">子力不足</b>　剩下的子理論上殺不了王（例如只剩單馬、雙馬或單象）</li>
+            <li><b style="color:var(--text)">雙方同意</b>　一方提和、另一方接受</li>
+            <li><b style="color:var(--text)">三次重複</b>　同一局面來回三次 · 常見於長將</li>
+            <li><b style="color:var(--text)">五十回合</b>　連續五十回合沒吃子、也沒動兵</li>
+          </ul>
+        </div>
+
+        <div class="rule-panel" id="p5">
+          <h3>記譜與開局</h3>
+          <ul>
+            <li>車 R · 象 B · 馬 N · 后 Q · 王 K · 兵沒有代號、只記格子</li>
+            <li>白先黑後 · 先英文字母再數字 · 例如 e4 e5</li>
+            <li>吃子加 x · 將軍加 + · 將死加 #</li>
+            <li>開局：白后在淺色格、黑后在深色格</li>
+          </ul>
+        </div>
+
+        <div class="rule-panel" id="p6">
+          <h3>子力怎麼估</h3>
+          <p>換子前先看這把尺 · 兵 1 · 馬／象 3 · 車 5 · 后 9 · 王無限（不能被吃）</p>
+          <p>開局車比較鈍、殘局比較利 · 兵越靠近底線越值錢</p>
+        </div>
+
+        <div class="rule-panel" id="p7">
+          <h3>將殺型</h3>
+          <p>子力領先卻殺不掉 · 常常和掉 · 先記幾種基本殺法</p>
+          <ul>
+            <li>后車配合把王逼到邊線或底線</li>
+            <li>雙車輪流切斷逃路</li>
+            <li>殺之前先看好對方有沒有逼和格</li>
+          </ul>
+        </div>
+
+        <div class="rule-panel" id="p8">
+          <h3>常見戰術</h3>
+          <ul>
+            <li><b style="color:var(--text)">捉雙</b>　一子同時打兩子 · 對方保不住兩邊</li>
+            <li><b style="color:var(--text)">閃擊</b>　前面的子讓開 · 後面的子突然打到人</li>
+            <li><b style="color:var(--text)">牽制</b>　後面有更貴的子 · 前面那顆不敢動</li>
+            <li><b style="color:var(--text)">串擊</b>　同一條線上排兩個敵子 · 吃前面、後面也危</li>
+            <li><b style="color:var(--text)">過載</b>　一子同時守兩處 · 打掉其中一處就崩</li>
+            <li><b style="color:var(--text)">雙將</b>　兩處同時將軍 · 只能走王、不能擋也不能吃其中一處了事</li>
+          </ul>
+        </div>
+      </div>
+      <p class="rule-note">經典模式走這套 · 迷霧模式沒有將軍與將死 · 吃掉對方的王就結束 · 規則整理自<a href="https://vocus.cc/article/645da309fd8978000114cc58" target="_blank" rel="noopener">棋手zero 西洋棋教學系列</a></p>
+    </div>
+  </section>
+
+  <section id="path">
+    <div class="wrap">
+      <div class="sec-head">
+        <small>START</small>
+        <h2>打開之後怎麼走</h2>
+      </div>
+      <div class="path">
+        <ol>
+          <li><span class="n">01</span><div><h3>登入介面</h3><p>未登入不能進遊戲 · 註冊要年齡與性別；信箱會寄六碼驗證</p></div></li>
+          <li><span class="n">02</span><div><h3>棋力選擇</h3><p>新手起始 600 分，老手 900 分 · 只選一次</p></div></li>
+          <li><span class="n">03</span><div><h3>模式選擇</h3><p>經典或迷霧 · 接著 AI，或連線對戰進個人頁找對手</p></div></li>
+          <li><span class="n">04</span><div><h3>對局、升級</h3><p>等級 0–80 · 階級 F 到 S · 連線匹配分差會從近到遠放寬</p></div></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section id="ladder">
+    <div class="wrap">
+      <div class="sec-head">
+        <small>LADDER</small>
+        <h2>階級從 F 爬到 S</h2>
+      </div>
+      <div class="ranks" aria-label="階級">
+        <div class="rank f"><img src="assets/ranks/rank-F.png" alt="F"><small>≤799</small></div>
+        <div class="rank e"><img src="assets/ranks/rank-E.png" alt="E"><small>800</small></div>
+        <div class="rank d"><img src="assets/ranks/rank-D.png" alt="D"><small>1100</small></div>
+        <div class="rank c"><img src="assets/ranks/rank-C.png" alt="C"><small>1300</small></div>
+        <div class="rank b"><img src="assets/ranks/rank-B.png" alt="B"><small>1500</small></div>
+        <div class="rank a"><img src="assets/ranks/rank-A.png" alt="A"><small>1700</small></div>
+        <div class="rank ap"><img src="assets/ranks/rank-A-plus.png" alt="A+"><small>1900</small></div>
+        <div class="rank s"><img src="assets/ranks/rank-S.png" alt="S"><small>≥2000</small></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="download">
+    <div class="wrap">
+      <div class="download">
+        <div class="download-copy">
+          <div class="kicker"><span class="pill">CLOSED BETA</span></div>
+          <h2>下載封測包</h2>
+          <p class="meta">Android · 直式 · 版本 1.0（Build 2）<br>把 APK 放到手機後安裝 · 首次需允許「未知來源」</p>
+          <div class="cta-row">
+            <a class="btn btn-gold" id="apk-btn" href="apk/Zhiqi.apk" download>下載智棋對決.apk</a>
+            <a class="btn btn-ghost" href="#top">回到頂部</a>
+          </div>
+          <p class="toast" id="apk-toast">這個資料夾裡還沒放 APK · 把封測包命名為 <code>Zhiqi.apk</code>，丟進 <code>apk/</code> 再點一次即可</p>
+        </div>
+        <dl class="download-side">
+          <dt>系統</dt><dd>Android 手機，直式鎖定 · 不提供橫向、也不上架商店</dd>
+          <dt>帳號</dt><dd>Email 註冊，六碼驗證 · 未驗證不能登入</dd>
+          <dt>連線</dt><dd>封測走對外通道 · 舊包若低於伺服器門檻，會要求改裝新版本</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>智棋對決 · v1.0</span>
+    <span>封測頁面 · 規則與數值以遊戲內為準</span>
+  </footer>
+
+  <script src="assets/site.js" defer></script>
+</body>
+</html>
