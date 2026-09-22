@@ -6,6 +6,10 @@
   if (!btn) return;
   btn.addEventListener("click", function () {
     var href = btn.getAttribute("href");
+    // 外部連結（APK 放在 GitHub Releases，單檔 100 MB 的限制讓它不能進 Pages repo）：
+    // 跨網域的 HEAD 一定被 CORS 擋掉，探測結果沒有意義，照探只會每次都誤報「還沒放 APK」。
+    // 直接交給瀏覽器開。
+    if (/^https?:\/\//i.test(href)) return;
     if (location.protocol === "file:") { toast.classList.add("show"); return; }
     fetch(href, { method: "HEAD" }).then(function (r) {
       if (!r.ok) toast.classList.add("show");

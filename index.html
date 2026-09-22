@@ -212,7 +212,8 @@
       cursor: pointer;
       transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
     }
-    .rank img { display: block; height: 52px; width: auto; margin: 0 auto 6px; }
+    .rank img { display: block; height: 52px; width: auto; max-width: none; margin: 0 auto 6px; }
+    .rank.ap img { height: 62px; }
     .rank small { display: block; font-family: "Noto Sans TC", sans-serif; font-size: 11px; margin-top: 0; letter-spacing: 0; }
     .rank.f { color: #6b7280; border-color: #1c2230; background: #0a0d14; font-size: 17px; font-weight: 500; }
     .rank.f small { color: #4b5563; }
@@ -576,12 +577,12 @@
         <div class="download-copy">
           <div class="kicker"><span class="pill">CLOSED BETA</span></div>
           <h2>下載封測包</h2>
-          <p class="meta">Android · 直式 · 版本 1.0（Build 2）<br>把 APK 放到手機後安裝 · 首次需允許「未知來源」</p>
+          <p class="meta">Android · 直式 · 版本 1.0（Build 4）· 約 137 MB<br>把 APK 放到手機後安裝 · 首次需允許「未知來源」</p>
           <div class="cta-row">
-            <a class="btn btn-gold" id="apk-btn" href="apk/Zhiqi.apk" download>下載智棋對決.apk</a>
+            <a class="btn btn-gold" id="apk-btn" href="https://github.com/ganime0125/zhiqi/releases/download/v1.0-build4/Zhiqi.apk" rel="noopener">下載智棋對決.apk</a>
             <a class="btn btn-ghost" href="#top">回到頂部</a>
           </div>
-          <p class="toast" id="apk-toast">這個資料夾裡還沒放 APK · 把封測包命名為 <code>Zhiqi.apk</code>，丟進 <code>apk/</code> 再點一次即可</p>
+          <p class="toast" id="apk-toast">下載沒有開始的話，請直接到 <a href="https://github.com/ganime0125/zhiqi/releases/latest" rel="noopener">Releases 頁面</a>取得最新封測包</p>
         </div>
         <dl class="download-side">
           <dt>系統</dt><dd>Android 手機，直式鎖定 · 不提供橫向、也不上架商店</dd>
